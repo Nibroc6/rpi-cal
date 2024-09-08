@@ -2,3 +2,12 @@
 /python_backend/Lib
 /python_backend/Scripts
 python_backend/pyvenv.cfg
+<<<<<<< HEAD
+/.venv
+/__pycache__
+anthropic_key.txt
+/images
+avn.txt
+=======
+>>>>>>> parent of 94279f3 (Whooo! Github works again!)
+sql_test.py
