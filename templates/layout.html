@@ -1,0 +1,34 @@
+<!doctype html>
+<script>
+	loading_messages = {{loading_messages|safe}};
+	let intervalID;
+	message = 0;
+	function submitting(){
+		document.getElementById("submit_message").innerHTML = "<br><br>Processing... (this may take a moment)<br><span id='cool_load'><span>";
+		document.getElementById("cool_load").innerHTML = loading_messages[message];
+		intervalID = setInterval(funny, {{loading_message_speed}});
+	}
+	function funny(){
+		message ++;
+		if (message >= loading_messages.length){
+			message = 0;
+		}
+		document.getElementById("cool_load").innerHTML = loading_messages[message];
+	}
+</script>
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<title>RPI Everything Calendar</title>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <script>alert("{{ message }}");</script>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+{% block body %}{% endblock %}

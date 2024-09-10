@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}
+	<h1>Done!</h1>
+	
+	<br><br>
+	Here are your new event IDs and edit codes. <strong> Save them, they will not be shown again. </strong>
+	<br><br>
+	<table>
+		<tr>
+			<th>Event ID</th>
+			<th>Event edit code</th>
+		</tr>
+		{{table|safe}}
+	</table>
+	
+	<br><br>
+	<img src="{{image_path}}" style="width: 50vw">
+	
+{% endblock %}

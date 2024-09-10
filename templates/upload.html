@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+	<h1>Upload Image</h1>
+	{% if error %}
+		<p class=error><strong>Error:</strong> {{ error }}
+	{% endif %}
+	
+	<form method=post enctype=multipart/form-data>
+		<input type=file name=file>
+		<input type=submit value=Upload onclick="submitting()">
+	</form>
+	
+	
+	
+	<div id="submit_message"></div>
+	
+{% endblock %}

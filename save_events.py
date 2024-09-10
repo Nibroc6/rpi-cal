@@ -69,6 +69,7 @@ def save_events(events,submitted_by="",image_id=""):
     db_connection.commit()
     cursor.close()
     db_connection.close()
+    
     return (edit_pairs, errors)
 
 def process_image(img):
