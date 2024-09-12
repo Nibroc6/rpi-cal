@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block body %}
+	<h1>Editing Event {{event_id}}</h1>
+	{% if error %}
+		<p class=error><strong>Error:</strong> {{ error }}
+	{% endif %}
+	
+	<form method=post enctype=multipart/form-data>
+		<label for="event_name">Event name: </label><br>
+		<input type="text" name="event_name" value="{{autofill['event_name']}}" required><br>
+		<label for="event_start">Event start: </label><br>
+		<input type="datetime-local" name="event_start" value="{{autofill['event_start']}}" required><br>
+		<label for="event_end">Event end (optional): </label><br>
+		<input type="datetime-local" name="event_end" value="{{autofill['event_end']}}"><br>
+		<label for="repeat">Does the event repeat? (0=no, 1=weekly, 2=every other week, 3=monthly) (doen't work very well for monthly yet, if possible create seperate events): </label><br>
+		<input type="number" name="repeat" value="{{autofill['repeat']}}" required><br>
+		<label for="club_name">Club/host name: </label><br>
+		<input type="text" name="club_name" value="{{autofill['club_name']}}" required><br>
+		<label for="location">Location: </label><br>
+		<input type="text" name="location" value="{{autofill['location']}}" required><br>
+		<label for="more_info">Where to find more info: </label><br>
+		<input type="text" name="more_info" value="{{autofill['more_info']}}"><br>
+		<label for="public">Is this a public event? (concert, talent show, etc.): </label><br>
+		<input type="checkbox" name="public" value="{{autofill['public']}}"><br>
+		<label for="description">Event description: </label><br>
+		<textarea name="description" rows="4" cols="50">{{autofill['description']}}</textarea><br><br>
+		<input type=submit value=Upload onclick="submitting()">
+	</form>
+	
+	
+	
+	<div id="submit_message"></div>
+	
+{% endblock %}

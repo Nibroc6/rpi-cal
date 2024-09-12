@@ -102,6 +102,7 @@ def process_image(img):
 
 #print(process_image(r"C:\Users\corbi\Downloads\IMG_5454.jpg"))
 
-
+def edit_event(event_id, edit_key, info):
+    pass
     
 

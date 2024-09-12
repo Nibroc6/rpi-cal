@@ -15,6 +15,9 @@ app.secret_key = b'a&Kue*uqMypYxE^V@7I3m9IaLh3j@$S%nDh#H'
 loading_messages_list = open(os.path.join(GENERAL_FOLDER,"loading.txt")).read().split("\n")
 random.shuffle(loading_messages_list)
 
+
+#=======================Helper functions==============================
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -23,36 +26,52 @@ def get_db_connection():
     conn = psycopg2.connect(database="defaultdb", user="avnadmin", password=open("avn.txt").read(), host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
     return conn
 
+#===============================================================
 
-@app.route('/edit')
-def edit():
+
+
+#=======================Edit event==============================
+
+@app.route('/edit', methods=['GET', 'POST'])
+def edit_select():
     if request.method == 'POST':
-        
-        return render_template("edit.html")
-    return render_template("edit.html")
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    results = None
-    search_date = None
-    search_performed = False
-
-    if request.method == 'POST':
-        search_performed = True
-        if 'today' in request.form:
-            search_date = date.today().strftime('%Y-%m-%d')
+        if request.form['event_id'] and request.form['edit_key']:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT edit_key FROM events WHERE event_id = %s", (request.form['event_id'],))
+            results = [x[0] for x in cur.fetchall()]
+            cur.close()
+            conn.close()
+            if request.form['edit_key'].strip() in results:
+                return redirect(f"/edit/{request.form['event_id']}/{request.form['edit_key'].strip()}",code=302)
         else:
-            search_date = request.form['search_date']
+            flash("ID or edit key is missing")
+    return render_template("edit_select.html")
 
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM events WHERE DATE(event_start) = %s", (search_date,))
-        results = cur.fetchall()
-        cur.close()
-        conn.close()
-        #print(results)
 
-    return render_template('date_search.html', results=[[r if r != None else "Unknown" for r in result] for result in results], search_date=search_date, search_performed=search_performed)
+@app.route('/edit/<int:id>/<edit_key>', methods=['GET', 'POST'])
+def edit(id, edit_key):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM events WHERE event_id = %s AND edit_key = %s",(id,edit_key))
+    result = cur.fetchall()
+    cur.close()
+    conn.close()
+    if len(result)<1:
+        return "Something went wrong..."
+    #print(result)
+    result = [(result[0][x].replace("\"","\\\"") if type(result[0][x]) == type("") else result[0][x]) for x in [3,1,2,14,5,10,11,12,4]]
+    #print(result)
+    autofill = dict(zip(("event_name","event_start","event_end","repeat","club_name","location","more_info","public","description"),result))
+    if request.method == 'POST':
+        flash("Saved event!")
+    return render_template("edit.html",event_id=id,autofill=autofill)
+
+#===============================================================
+
+
+
+#=======================Serve calendar==========================
 
 @app.route('/get_details/<int:id>')
 def get_details(id):
@@ -83,6 +102,35 @@ def get_details(id):
     else:
         return jsonify({'error': 'Record not found'}), 404
 
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    results = None
+    search_date = None
+    search_performed = False
+
+    if request.method == 'POST':
+        search_performed = True
+        if 'today' in request.form:
+            search_date = date.today().strftime('%Y-%m-%d')
+        else:
+            search_date = request.form['search_date']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM events WHERE (\"repeat\"=1 and extract('DOW' from \"event_start\") = extract('DOW' from timestamp %s) and \"event_start\"<=%s and (end_repeat is null or end_repeat>=%s)) or DATE(event_start) = %s", (search_date,search_date,search_date,search_date,))
+        results = [[r if r != None else "Unknown" for r in result] for result in cur.fetchall()]
+        cur.close()
+        conn.close()
+        #print(results)
+        
+    return render_template('date_search.html', results=results, search_date=search_date, search_performed=search_performed, today=date.today().strftime('%Y-%m-%d'))
+    
+#===============================================================
+
+
+
+#=======================Create events==========================
 
 @app.route('/image', methods=['GET', 'POST'])
 def upload_file():
@@ -124,3 +172,5 @@ def download_file(name):
 app.add_url_rule(
     "/uploads/<name>", endpoint="download_file", build_only=True
 )
+
+#===============================================================
