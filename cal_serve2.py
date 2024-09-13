@@ -4,6 +4,8 @@ from datetime import date
 
 #from werkzeug.utils import secure_filename
 GENERAL_FOLDER = r"C:\Users\corbi\Desktop\GitHub\rpi-cal"
+SITE_LOCATION = "http://localhost:5000"
+
 UPLOAD_FOLDER = os.path.join(GENERAL_FOLDER,"images")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heif'}
 
@@ -26,6 +28,22 @@ def get_db_connection():
     conn = psycopg2.connect(database="defaultdb", user="avnadmin", password=open("avn.txt").read(), host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
     return conn
 
+def check_edit_auth(id,key):
+    if id and key:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT edit_key FROM events WHERE event_id = %s", (id,))
+        results = [x[0] for x in cur.fetchall()]
+        cur.close()
+        conn.close()
+        if key.strip() in results:
+            return True
+        else:
+            flash("Wrong ID or edit code")
+    else:
+        flash("ID or edit key is missing")
+    return False
+
 #===============================================================
 
 
@@ -35,36 +53,51 @@ def get_db_connection():
 @app.route('/edit', methods=['GET', 'POST'])
 def edit_select():
     if request.method == 'POST':
-        if request.form['event_id'] and request.form['edit_key']:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT edit_key FROM events WHERE event_id = %s", (request.form['event_id'],))
-            results = [x[0] for x in cur.fetchall()]
-            cur.close()
-            conn.close()
-            if request.form['edit_key'].strip() in results:
-                return redirect(f"/edit/{request.form['event_id']}/{request.form['edit_key'].strip()}",code=302)
-        else:
-            flash("ID or edit key is missing")
+        if check_edit_auth(request.form['event_id'], request.form['edit_key']):
+            return redirect(f"/edit/{request.form['event_id']}/{request.form['edit_key'].strip()}",code=302)
     return render_template("edit_select.html")
 
 
 @app.route('/edit/<int:id>/<edit_key>', methods=['GET', 'POST'])
 def edit(id, edit_key):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM events WHERE event_id = %s AND edit_key = %s",(id,edit_key))
-    result = cur.fetchall()
-    cur.close()
-    conn.close()
-    if len(result)<1:
-        return "Something went wrong..."
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM events WHERE event_id = %s AND edit_key = %s",(id,edit_key))
+        result = cur.fetchall()
+        
+        if len(result)<1:
+            return "Something went wrong...\nMaybe try going back to the edit auth page?"
+    except:
+        return "Something went wrong while fetching event details..."
     #print(result)
     result = [(result[0][x].replace("\"","\\\"") if type(result[0][x]) == type("") else result[0][x]) for x in [3,1,2,14,5,10,11,12,4]]
     #print(result)
-    autofill = dict(zip(("event_name","event_start","event_end","repeat","club_name","location","more_info","public","description"),result))
+    column_names = ["event_name","event_start","event_end","repeat","club_name","location","more_info","public","description"]
+    autofill = dict(zip(column_names,result))
+    
+    #to_save = [request.form[n] for n in column_names]
     if request.method == 'POST':
-        flash("Saved event!")
+        if check_edit_auth(id,edit_key):
+            try:
+                to_save = [request.form.get(n,False) for n in column_names]
+                if to_save[7] in ['False','on']:
+                    to_save[7] = True
+                for u in range(len(column_names)): #deal with errors in sql when date isn't set - if the user did't put omething in a 
+                    if to_save[u] == '':
+                        to_save[u] = None
+                cur.execute("UPDATE events SET "+", ".join([n+" = %s" for n in column_names])+" WHERE event_id = %s AND edit_key = %s",(*to_save,id,edit_key))
+            
+                flash("Saved event!")
+                autofill = dict(zip(("event_name","event_start","event_end","repeat","club_name","location","more_info","public","description"),to_save))
+                conn.commit()
+            except Exception as e:
+                print(e)
+                flash("Error saving event")
+        
+        
+    cur.close()
+    conn.close()
     return render_template("edit.html",event_id=id,autofill=autofill)
 
 #===============================================================
@@ -174,3 +207,21 @@ app.add_url_rule(
 )
 
 #===============================================================
+
+
+#---------------------------API---------------------------------
+#=======================Save events=============================
+
+@app.route('/api/new/<dev_key>', methods=['POST'])
+def api_new_event(dev_key):
+    if dev_key in ["xPpiZz257jFbet"]:
+        print(json.dumps(request.get_json()))
+        try:
+            json.dumps(request.get_json())
+            id_keys = save_events.save_events(json.dumps(request.get_json()),submitted_by="API")
+            return '{"errors":'+json.dumps(id_keys[1])+', "id_keys":'+json.dumps(id_keys[0])+"}"
+        except Exception as e:
+            return 'error: '+str(e)
+    else:
+        return 'error: wrong/missing key'
+    

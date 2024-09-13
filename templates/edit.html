@@ -21,7 +21,7 @@
 		<label for="more_info">Where to find more info: </label><br>
 		<input type="text" name="more_info" value="{{autofill['more_info']}}"><br>
 		<label for="public">Is this a public event? (concert, talent show, etc.): </label><br>
-		<input type="checkbox" name="public" value="{{autofill['public']}}"><br>
+		<input type="checkbox" name="public"{% if autofill['public'] %} checked{% endif %}><br>
 		<label for="description">Event description: </label><br>
 		<textarea name="description" rows="4" cols="50">{{autofill['description']}}</textarea><br><br>
 		<input type=submit value=Upload onclick="submitting()">

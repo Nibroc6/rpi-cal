@@ -2,6 +2,7 @@ import psycopg2, json, anthropic, base64, pillow_heif
 from io import BytesIO
 from PIL import Image
 
+SITE_LOCATION = "http://localhost:5000"
 
  
 events_list = """{\n  "name": "ON-SITE BUILD AT PITTSFIELD, MA",\n  "start": "2024-08-31 07:30",\n  "end": "N/A",\n  "cost": "N/A",\n  "repeat": 0,\n  "club": "Rensselaer Polytechnic Institute Habitat for Humanity Campus Chapter",\n  "location": "Pittsfield, MA",\n  "more_info": "Scan QR code to sign up",\n  "public": true,\n  "description": "Freshman NRB Block event. No experience needed. Lunch & Transportation provided. Leaving from Union Horseshoe at 7:30 AM."\n}"""
@@ -69,7 +70,7 @@ def save_events(events,submitted_by="",image_id=""):
     db_connection.commit()
     cursor.close()
     db_connection.close()
-    
+    edit_pairs = [[p[0],p[1],SITE_LOCATION+f"/edit/{p[0]}/{p[1]}"] for p in edit_pairs]
     return (edit_pairs, errors)
 
 def process_image(img):
