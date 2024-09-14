@@ -212,16 +212,16 @@ app.add_url_rule(
 #---------------------------API---------------------------------
 #=======================Save events=============================
 
-@app.route('/api/new/<dev_key>', methods=['POST'])
+@app.route('/api/new', methods=['POST'])
 def api_new_event(dev_key):
-    if dev_key in ["xPpiZz257jFbet"]:
-        print(json.dumps(request.get_json()))
-        try:
-            json.dumps(request.get_json())
-            id_keys = save_events.save_events(json.dumps(request.get_json()),submitted_by="API")
-            return '{"errors":'+json.dumps(id_keys[1])+', "id_keys":'+json.dumps(id_keys[0])+"}"
-        except Exception as e:
-            return 'error: '+str(e)
-    else:
-        return 'error: wrong/missing key'
+    #if dev_key in ["xPpiZz257jFbet"]:
+    #print(json.dumps(request.get_json()))
+    try:
+        json.dumps(request.get_json())
+        id_keys = save_events.save_events(json.dumps(request.get_json()),submitted_by="API")
+        return '{"errors":'+json.dumps(id_keys[1])+', "id_keys":'+json.dumps(id_keys[0])+"}"
+    except Exception as e:
+        return 'error: '+str(e)
+    #else:
+    #    return 'error: wrong/missing key'
     
