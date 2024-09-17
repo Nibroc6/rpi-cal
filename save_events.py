@@ -1,6 +1,6 @@
 import psycopg2, json, anthropic, base64, pillow_heif
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageOps
 
 SITE_LOCATION = "http://localhost:5000"
 
@@ -40,10 +40,11 @@ def resize_image(img: Image.Image) -> Image.Image:
     
     return img.resize((new_width, new_height), Image.LANCZOS)
 
-def save_events(events,submitted_by="",image_id=""):
+def save_events(events1,submitted_by="",image_id=""):
     try:
-        events = json.loads(events)
+        events = json.loads(events1)
     except:
+        print(events1)
         raise Exception("can't joad json of event(s)")
     db_connection = psycopg2.connect(database="defaultdb", user="avnadmin", password=open("avn.txt").read(), host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
     cursor = db_connection.cursor()
@@ -58,7 +59,7 @@ def save_events(events,submitted_by="",image_id=""):
         #print(f"INSERT INTO events ({','.join([key_map[k] for k in keys])}) VALUES ({','.join(['%s' for x in range(len(keys))])});")
         #items = []
         try:
-            cursor.execute(f"INSERT INTO events ({','.join([key_map[k] for k in keys])},verified,submitted_by,needs_correction,edit_key,image_id) VALUES ({','.join(['%s' for x in range(len(keys)+3)])},gen_random_uuid(),%s) RETURNING (event_id,edit_key);", (*[event[x] for x in keys],False,submitted_by,True,image_id))
+            cursor.execute(f"INSERT INTO events ({','.join([key_map[k] for k in keys])},verified,submitted_by,needs_correction,edit_key,image_id,created) VALUES ({','.join(['%s' for x in range(len(keys)+3)])},gen_random_uuid(),%s,CURRENT_TIMESTAMP) RETURNING (event_id,edit_key);", (*[event[x] for x in keys],False,submitted_by,True,image_id))
             data = cursor.fetchone() 
             edit_pairs.append(data[0][1:len(data[0])-1].split(","))
         except Exception as e:
@@ -72,17 +73,18 @@ def save_events(events,submitted_by="",image_id=""):
     db_connection.close()
     edit_pairs = [[p[0],p[1],SITE_LOCATION+f"/edit/{p[0]}/{p[1]}"] for p in edit_pairs]
     return (edit_pairs, errors)
-
+#print(save_events(events_list,submitted_by="test"))
 def process_image(img):
-    image = resize_image(Image.open(img))
+    image = ImageOps.exif_transpose(Image.open(img))
     buffered = BytesIO()
     image.save(buffered, format="JPEG")
     img64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    image.save(img)
     message = anthropic.Anthropic(api_key=open("anthropic_key.txt").read()).messages.create(
         model="claude-3-5-sonnet-20240620",
-        max_tokens=1500,
+        max_tokens=3000,
         temperature=0,
-        system="""You are an a event poster/image processer. You respond with a JSON object of events in the following format from the given image. Respond with only the JSON object. If a given category is not applicable for the event, put N/A in it. If there is more than one event on the poster, output a JSON list of the events in the same format. For repeating events, use the date and time of a likely first event for the start time. {"name":"name of the event","start":"date and time of event start (in the format '2024-10-10 24:59')","end":"date and time of event end (in the format '2024-10-10 24:59', if applicable)","cost":"how much does the event cost?","repeat":(int) 0 for non-repeating; 1 for weekly; 2 for bi-weekly; and 3 for monthly,"club":"what's the name of the club hosting the event?","location":"where is the event happening?","more_info":"where can more info about the event be found?","public":(true or false) is this a public event like a concert or intrest-gathering event?,"description":"any info that didn't go in any other category? (don't include take-down date)"}""",
+        system="""You are an a event poster/image processer. You respond with a JSON object of events in the following format from the given image. Respond with only the JSON object. If a given category is not applicable for the event, put N/A in it. If there is more than one event on the poster, output a JSON list of the events in the same format. For repeating events, use the date and time of a likely first event for the start time. If the event doesn't specify a year, use 2024. In an event has multiple dates, create a seperate event for each one. {"name":"name of the event","start":"date and time of event start (in the format '2024-10-10 24:59')","end":"date and time of event end (in the format '2024-10-10 24:59', if applicable)","cost":"how much does the event cost?","repeat":(int) 0 for non-repeating; 1 for weekly; 2 for bi-weekly; 3 for monthly (same day); and 4 for monthly (same day of _ week ex. second sunday of every month),"club":"what's the name of the club hosting the event?","location":"where is the event happening?","more_info":"where can more info about the event be found? Any links belong here","public":(true or false) is this a public event like a concert or intrest-gathering event?,"description":"any info that didn't go in any other category? (don't include take-down date or description of poster)"}""",
         messages=[
             {
                 "role": "user",
@@ -100,6 +102,7 @@ def process_image(img):
         ]
     )
     return message.content[0].text
+    #return ""
 
 #print(process_image(r"C:\Users\corbi\Downloads\IMG_5454.jpg"))
 

@@ -1,6 +1,7 @@
-import os, psycopg2, uuid, save_events, time, random, json
+import os, psycopg2, uuid, save_events, time, random, json, pillow_heif
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, render_template, jsonify
 from datetime import date
+from PIL import Image
 
 #from werkzeug.utils import secure_filename
 GENERAL_FOLDER = r"C:\Users\corbi\Desktop\GitHub\rpi-cal"
@@ -16,6 +17,9 @@ app.secret_key = b'a&Kue*uqMypYxE^V@7I3m9IaLh3j@$S%nDh#H'
 
 loading_messages_list = open(os.path.join(GENERAL_FOLDER,"loading.txt")).read().split("\n")
 random.shuffle(loading_messages_list)
+
+
+pillow_heif.register_heif_opener()
 
 
 #=======================Helper functions==============================
@@ -180,6 +184,7 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = str(uuid.uuid4())+"."+file.filename.rsplit('.', 1)[1]
+            
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename)) 
             #flash("Processing image...")
             json_content = save_events.process_image(os.path.join(app.config['UPLOAD_FOLDER'], filename))

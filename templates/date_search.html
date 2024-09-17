@@ -97,7 +97,7 @@ function showDetails(id) {
 				<p><strong>Location:</strong> ${data.location}</p>
 				<p><strong>Description:</strong> ${data.description}</p>
 				<p><strong>More info / where to learn more:</strong> ${data.more_info}</p>
-				<img scr="/uploads/${data.image_id}">
+				<p><strong>Image of original poster:</strong> <a href="/uploads/${data.image_id}">Linked if availible</a></p>
             `;
             document.getElementById('overlay').style.display = 'block';
         });
