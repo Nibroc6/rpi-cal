@@ -4,7 +4,7 @@ from PIL import Image, ImageOps
 
 SITE_LOCATION = "http://localhost:5000"
 
- 
+
 events_list = """{\n  "name": "ON-SITE BUILD AT PITTSFIELD, MA",\n  "start": "2024-08-31 07:30",\n  "end": "N/A",\n  "cost": "N/A",\n  "repeat": 0,\n  "club": "Rensselaer Polytechnic Institute Habitat for Humanity Campus Chapter",\n  "location": "Pittsfield, MA",\n  "more_info": "Scan QR code to sign up",\n  "public": true,\n  "description": "Freshman NRB Block event. No experience needed. Lunch & Transportation provided. Leaving from Union Horseshoe at 7:30 AM."\n}"""
 #print(events_list)
 
@@ -17,7 +17,7 @@ key_map = {"name":"event_name",
     "more_info":"more_info",
     "public":"public",
     "description":"description"}
- 
+
 
 pillow_heif.register_heif_opener()
 
@@ -67,7 +67,7 @@ def save_events(events1,submitted_by="",image_id=""):
                 errors.append((e,f"INSERT INTO events ({','.join([key_map[k] for k in keys])},verified,submitted_by,needs_correction,edit_key) VALUES ({','.join(['{}' for x in range(len(keys)+3)])},gen_random_uuid()) RETURNING (event_id,edit_key);".format(*[event[x] for x in keys],False,submitted_by,True),event["name"]))
             except Exception as error:
                 print(error)
-             
+
     db_connection.commit()
     cursor.close()
     db_connection.close()
@@ -108,5 +108,3 @@ def process_image(img):
 
 def edit_event(event_id, edit_key, info):
     pass
-    
-
