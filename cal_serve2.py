@@ -12,7 +12,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heif'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 3 * 1000 * 1000
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1000 * 1000
 app.secret_key = b'a&Kue*uqMypYxE^V@7I3m9IaLh3j@$S%nDh#H'
 
 loading_messages_list = open(os.path.join(GENERAL_FOLDER,"loading.txt")).read().split("\n")
