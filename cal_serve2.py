@@ -175,7 +175,7 @@ def index():
 
 
 
-#=======================Create events==========================
+#=======================Create events===========================
 
 @app.route('/image', methods=['GET', 'POST'])
 def upload_file():

@@ -10,6 +10,7 @@
 
 {% if results %}
     <h2>Results for {{ search_date }}</h2>
+	<div>Please remember that these may not be perfectly accurate. If possible, double check that an event is still happening before planning around it. (The poster image links should be useful in finding out where to do this.)</div>
     <table id="eventTable">
 		<thead>
             <tr>
@@ -155,9 +156,17 @@
 	}
 
 	function getMinutesSinceMidnight(timeString) {
-		const [datePart, timePart] = timeString.split(' ');
-		const [hours, minutes] = timePart.split(':');
-		return parseInt(hours) * 60 + parseInt(minutes);
+		const [time, period] = timeString.split(' ');
+		let [hours, minutes] = time.split(':').map(Number);
+		
+		// Convert to 24-hour format
+		if (period === 'PM' && hours !== 12) {
+			hours += 12;
+		} else if (period === 'AM' && hours === 12) {
+			hours = 0;
+		}
+		
+		return hours * 60 + minutes;
 	}
 
 	function showDetails(id) {

@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h1>Date Search</h1>
+
+<form method="post">
+    <label for="date">Enter Date:</label>
+    <input type="date" id="date" name="date" required>
+    <input type="submit" value="Search">
+</form>
+
+{% if results %}
+    <h2>Results for {{ search_date }}</h2>
+    
+    <table id="eventTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">ID <span class="sort-arrow"></span></th>
+                <th onclick="sortTable(1)">Event Name <span class="sort-arrow"></span></th>
+                <th onclick="sortTable(2, true)">Start <span class="sort-arrow"></span></th>
+                <th onclick="sortTable(3, true)">End <span class="sort-arrow"></span></th>
+                <th>More Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td><button onclick="showDetails('{{ row[0] }}')">Details</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% elif search_performed %}
+    <p>No results found for {{ search_date }}</p>
+{% endif %}
+
+<div id="overlay" class="overlay">
+    <div class="popup">
+        <a href="#" class="close" onclick="closePopup()">&times;</a>
+        <div id="popup-content" class="content"></div>
+    </div>
+</div>
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+        cursor: pointer;
+    }
+    th:hover {
+        background-color: #ddd;
+    }
+    .sort-arrow {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin-left: 5px;
+        vertical-align: middle;
+        border-right: 4px solid transparent;
+        border-left: 4px solid transparent;
+    }
+    .sort-arrow.asc {
+        border-bottom: 4px solid #333;
+    }
+    .sort-arrow.desc {
+        border-top: 4px solid #333;
+    }
+</style>
+
+<script>
+    let sortDirection = Array(5).fill(true);
+
+    function sortTable(n, isDateTime = false) {
+        const table = document.getElementById("eventTable");
+        const tbody = table.getElementsByTagName("tbody")[0];
+        const rows = Array.from(tbody.rows);
+        const headers = table.getElementsByTagName("th");
+
+        // Reset all arrows
+        for (let i = 0; i < headers.length; i++) {
+            const arrow = headers[i].querySelector(".sort-arrow");
+            if (arrow && i !== n) {
+                arrow.className = "sort-arrow";
+            }
+        }
+
+        // Update current arrow
+        const currentArrow = headers[n].querySelector(".sort-arrow");
+        if (currentArrow) {
+            currentArrow.className = "sort-arrow " + (sortDirection[n] ? "asc" : "desc");
+        }
+
+        rows.sort((a, b) => {
+            let x = a.cells[n].innerText;
+            let y = b.cells[n].innerText;
+
+            if (isDateTime) {
+                x = x === "Unknown" ? new Date(8640000000000000) : new Date(x);
+                y = y === "Unknown" ? new Date(8640000000000000) : new Date(y);
+                x = x.getHours() * 60 + x.getMinutes();
+                y = y.getHours() * 60 + y.getMinutes();
+            } else if (!isNaN(x) && !isNaN(y)) {
+                x = Number(x);
+                y = Number(y);
+            }
+
+            if (x < y) return sortDirection[n] ? -1 : 1;
+            if (x > y) return sortDirection[n] ? 1 : -1;
+            return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+        sortDirection[n] = !sortDirection[n];
+    }
+
+    function showDetails(id) {
+        // You can implement the details popup logic here
+        alert("Showing details for event " + id);
+    }
+
+    function closePopup() {
+        document.getElementById('overlay').style.display = 'none';
+    }
+</script>
+
+{% endblock %}
