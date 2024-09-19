@@ -75,7 +75,7 @@ def save_events(events1,submitted_by="",image_id=""):
     return (edit_pairs, errors)
 #print(save_events(events_list,submitted_by="test"))
 def process_image(img):
-    image = ImageOps.exif_transpose(Image.open(img))
+    image = ImageOps.exif_transpose(Image.open(img)).convert('RGB')
     buffered = BytesIO()
     image.save(buffered, format="JPEG")
     img64 = base64.b64encode(buffered.getvalue()).decode("utf-8")

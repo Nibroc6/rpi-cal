@@ -26,26 +26,25 @@ table, th, td {
 body {
   font-family: Arial;
   min-height: 100vh;
-  margin: 0px;
+  margin: 0;
   position: relative;
-  top: 0px;
 }
 
 header {
-  min-height: 100px;
+  min-height: 50px;
   background: lightcyan;
-  
+  overflow: hidden;
 }
 
-/*.header-content {
-	box-shadow: 0px 0px 20px #333333;
-}
-*/
 footer {
   background: PapayaWhip;
 }
 
 
+/* Trick: */
+body {
+  position: relative;
+}
 
 body::after {
   content: '';
@@ -61,10 +60,13 @@ footer {
   height: 50px;
 }
 
+
 #content {
 	padding: 20px;
 	background-color: #96D4D4;
 }
+
+
 
 /*--------------------------------------navbar----------------*/
 
@@ -147,18 +149,19 @@ footer {
 <h3>A compilation of every event we could find.</h3>
 </div>
 <div class="navbar">
-  <a href="#home">Home</a>
-  <a href="#news">News</a>
+  <a href="/">Home</a>
+  <a href="/about">About</a>
   <div class="dropdown">
-    <button class="dropbtn">Dropdown
+    <button class="dropbtn">Editor/Admin Stuff
       <i class="fa fa-caret-down"></i>
     </button>
     <div class="dropdown-content">
-      <a href="#">Link 1</a>
-      <a href="#">Link 2</a>
-      <a href="#">Link 3</a>
+      <a href="/image">Image Upload</a>
+      <a href="/edit">Edit Auth Page</a>
+      <a href="/info">Info</a>
     </div>
   </div>
+  <a href="/"></a>
 </div>
 </div>
 </header>

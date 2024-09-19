@@ -87,7 +87,7 @@ def edit(id, edit_key):
                 to_save = [request.form.get(n,False) for n in column_names]
                 if to_save[7] in ['False','on']:
                     to_save[7] = True
-                for u in range(len(column_names)): #deal with errors in sql when date isn't set - if the user did't put omething in a 
+                for u in range(len(column_names)): #deal with errors in sql when date isn't set - if the user didn't put something in a 
                     if to_save[u] == '':
                         to_save[u] = None
                 cur.execute("UPDATE events SET "+", ".join([n+" = %s" for n in column_names])+" WHERE event_id = %s AND edit_key = %s",(*to_save,id,edit_key))
@@ -155,8 +155,16 @@ def index():
 
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM events WHERE (\"repeat\"=1 and extract('DOW' from \"event_start\") = extract('DOW' from timestamp %s) and \"event_start\"<=%s and (end_repeat is null or end_repeat>=%s)) or DATE(event_start) = %s", (search_date,search_date,search_date,search_date,))
+        cur.execute("SELECT * FROM events WHERE (\"repeat\"=1 and extract('DOW' from \"event_start\") = extract('DOW' from timestamp %s) and \"event_start\"<=%s and (end_repeat is null or end_repeat>=%s)) or DATE(event_start) = %s ORDER BY date_part('hour', event_start), date_part('minute', event_start)", (search_date,search_date,search_date,search_date,))
         results = [[r if r != None else "Unknown" for r in result] for result in cur.fetchall()]
+        r2 = []
+        for r in results: #remove the date part of the timestamps - I know it's janky, but it works for now
+            line = r
+            line[1] = line[1].strftime("%I:%M %p")
+            if line[2] != "Unknown":
+                line[2] = line[2].strftime("%I:%M %p")
+            r2.append(line)
+        results = r2
         cur.close()
         conn.close()
         #print(results)
