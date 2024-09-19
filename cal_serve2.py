@@ -26,7 +26,7 @@ pillow_heif.register_heif_opener()
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_db_connection():
     conn = psycopg2.connect(database="defaultdb", user="avnadmin", password=open("avn.txt").read(), host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
@@ -206,8 +206,8 @@ def upload_file():
     <title>Poster Upload</title>
     <h1>Upload picture of a poster (max 3 MB)</h1>
     <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
+        <input type=file name=file>
+        <input type=submit value=Upload>
     </form>
     '''
     
