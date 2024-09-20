@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
+	<div class="search-box">
+
 	<h1>Edit Event - Auth</h1>
 	{% if error %}
 		<p class=error><strong>Error:</strong> {{ error }}
@@ -14,4 +16,6 @@
 	</form>
 	
 	<div id="submit_message"></div>
+	</div>
+
 {% endblock %}

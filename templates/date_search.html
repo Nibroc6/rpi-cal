@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
+<div class="search-box">
 <h1>Date Search</h1>
 <form method="POST">
     <label for="search_date">Enter Date:</label>
@@ -7,10 +8,10 @@
     <input type="submit" value="Search">
     <input type="submit" name="today" value="Use Today's Date">
 </form>
-
+</div>
 {% if results %}
     <h2>Results for {{ search_date }}</h2>
-	<div>Please remember that these may not be perfectly accurate. If possible, double check that an event is still happening before planning around it. (The poster image links should be useful in finding out where to do this.)</div>
+	<div class="disclaimer">Please remember that these may not be perfectly accurate. If possible, double check that an event is still happening before planning around it. (The poster image links should be useful in finding out where to do this.)</div><br>
     <table id="eventTable">
 		<thead>
             <tr>
@@ -69,6 +70,16 @@
 	.sort-arrow.desc {
 		border-top: 4px solid #333;
 	}
+</style>
+<style>
+.disclaimer {
+	background-color: rgba(255, 50, 0, 0.3);
+	border-style: solid;
+	border-color: red;
+	padding: 5px;
+}
+
+
 </style>
 <style>
     .overlay {

@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
+	<div class="search-box">
+
 	<h1>Editing Event {{event_id}}</h1>
 	{% if error %}
 		<p class=error><strong>Error:</strong> {{ error }}
@@ -30,5 +32,5 @@
 	
 	
 	<div id="submit_message"></div>
-	
+	</div>
 {% endblock %}
