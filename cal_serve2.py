@@ -3,9 +3,17 @@ from flask import Flask, flash, request, redirect, url_for, send_from_directory,
 from datetime import date
 from PIL import Image
 
+from dotenv import load_dotenv
+load_dotenv()
+SITE_LOCATION = os.environ['SITE_LOCATION']
+AVN_PASS = os.environ['AVN_PASS']
+AVN_USER = os.environ['AVN_USER']
+ANTHROPIC_KEY = os.environ['ANTHROPIC_KEY']
+GENERAL_FOLDER = os.environ['GENERAL_FOLDER']
+FLASK_SECRET_KEY = os.environ['FLASK_SECRET_KEY']
+
 #from werkzeug.utils import secure_filename
-GENERAL_FOLDER = r"C:\Users\corbi\Desktop\GitHub\rpi-cal"
-SITE_LOCATION = "http://localhost:5000"
+#GENERAL_FOLDER = r"C:\Users\corbi\Desktop\GitHub\rpi-cal"
 
 UPLOAD_FOLDER = os.path.join(GENERAL_FOLDER,"images")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heif'}
@@ -13,7 +21,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heif'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1000 * 1000
-app.secret_key = b'a&Kue*uqMypYxE^V@7I3m9IaLh3j@$S%nDh#H'
+app.secret_key = FLASK_SECRET_KEY#b'a&Kue*uqMypYxE^V@7I3m9IaLh3j@$S%nDh#H'
 
 loading_messages_list = open(os.path.join(GENERAL_FOLDER,"loading.txt")).read().split("\n")
 random.shuffle(loading_messages_list)
@@ -29,7 +37,7 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_db_connection():
-    conn = psycopg2.connect(database="defaultdb", user="avnadmin", password=open("avn.txt").read(), host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
+    conn = psycopg2.connect(database="defaultdb", user=AVN_USER, password=AVN_PASS, host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
     return conn
 
 def check_edit_auth(id,key):
@@ -48,8 +56,40 @@ def check_edit_auth(id,key):
         flash("ID or edit key is missing")
     return False
 
+def check_upload_auth(key):
+    if key:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM uploaders WHERE editor_key = %s", (key,))
+        results = cur.fetchall()
+        cur.close()
+        conn.close()
+        if len(results) == 1:
+            return results[0][0]
+        else:
+            flash("Upload key does not exist")
+    else:
+        flash("Upload key is missing")
+    return False
+
 #===============================================================
 
+
+#=======================Static pages============================
+
+@app.route('/about')
+def about(id):
+    return render_template("about.html")
+    
+@app.route('/upload_info')
+def upload_info(id):
+    return render_template("info.html")
+    
+@app.route('/soon')
+def soon(id):
+    return render_template("soon.html")
+
+#===============================================================
 
 
 #=======================Edit event==============================
@@ -75,7 +115,7 @@ def edit(id, edit_key):
     except:
         return "Something went wrong while fetching event details..."
     #print(result)
-    result = [(result[0][x].replace("\"","\\\"") if type(result[0][x]) == type("") else result[0][x]) for x in [3,1,2,14,5,10,11,12,4]]
+    result = [(result[0][x].replace("\"","\\\"") if type(result[0][x]) == type("") else result[0][x]) for x in [3,1,2,15,5,10,11,12,4]]
     #print(result)
     column_names = ["event_name","event_start","event_end","repeat","club_name","location","more_info","public","description"]
     autofill = dict(zip(column_names,result))
@@ -87,7 +127,7 @@ def edit(id, edit_key):
                 to_save = [request.form.get(n,False) for n in column_names]
                 if to_save[7] in ['False','on']:
                     to_save[7] = True
-                for u in range(len(column_names)): #deal with errors in sql when date isn't set - if the user didn't put something in a 
+                for u in range(len(column_names)): #deal with errors in sql when date isn't set - if the user didn't put something in 
                     if to_save[u] == '':
                         to_save[u] = None
                 cur.execute("UPDATE events SET "+", ".join([n+" = %s" for n in column_names])+" WHERE event_id = %s AND edit_key = %s",(*to_save,id,edit_key))
@@ -177,29 +217,31 @@ def index():
 
 #=======================Create events===========================
 
-@app.route('/image', methods=['GET', 'POST'])
-def upload_file():
+@app.route('/image/<key>', methods=['GET', 'POST'])
+def upload_file(key):
     if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = str(uuid.uuid4())+"."+file.filename.rsplit('.', 1)[1]
-            
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename)) 
-            #flash("Processing image...")
-            json_content = save_events.process_image(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            #flash("Found the following events: \n"+json_content+"\n\n"+"Saving events...")
-            event_info = save_events.save_events(json_content, submitted_by="Corbin", image_id=filename)
-            #flash("Saved events!")
-            return render_template("scanned.html",image_path =url_for('download_file', name=filename),table="\n".join(["<tr>"+'\n'.join([f'<td>{data}</td>' for data in row])+"</tr>" for row in event_info[0]]))
+        user = check_upload_auth(key)
+        if user:
+            # check if the post request has the file part
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = str(uuid.uuid4())+"."+file.filename.rsplit('.', 1)[1]
+                
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename)) 
+                #flash("Processing image...")
+                json_content = save_events.process_image(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                #flash("Found the following events: \n"+json_content+"\n\n"+"Saving events...")
+                event_info = save_events.save_events(json_content, submitted_by=user, image_id=filename)
+                #flash("Saved events!")
+                return render_template("scanned.html",image_path =url_for('download_file', name=filename),table="\n".join(["<tr>"+'\n'.join([f'<td>{data}</td>' for data in row])+"</tr>" for row in event_info[0]]))
     return render_template("upload.html", error=None, loading_messages = json.dumps(loading_messages_list[:20]),loading_message_speed="3000")
     '''
     <!doctype html>

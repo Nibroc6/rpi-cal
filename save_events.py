@@ -2,7 +2,13 @@ import psycopg2, json, anthropic, base64, pillow_heif
 from io import BytesIO
 from PIL import Image, ImageOps
 
-SITE_LOCATION = "http://localhost:5000"
+import os
+from dotenv import load_dotenv
+load_dotenv()
+SITE_LOCATION = os.environ['SITE_LOCATION']
+AVN_PASS = os.environ['AVN_PASS']
+AVN_USER = os.environ['AVN_USER']
+ANTHROPIC_KEY = os.environ['ANTHROPIC_KEY']
 
 
 events_list = """{\n  "name": "ON-SITE BUILD AT PITTSFIELD, MA",\n  "start": "2024-08-31 07:30",\n  "end": "N/A",\n  "cost": "N/A",\n  "repeat": 0,\n  "club": "Rensselaer Polytechnic Institute Habitat for Humanity Campus Chapter",\n  "location": "Pittsfield, MA",\n  "more_info": "Scan QR code to sign up",\n  "public": true,\n  "description": "Freshman NRB Block event. No experience needed. Lunch & Transportation provided. Leaving from Union Horseshoe at 7:30 AM."\n}"""
@@ -37,7 +43,7 @@ def resize_image(img: Image.Image) -> Image.Image:
     else:
         new_height = max_size
         new_width = int(width * (max_size / height))
-    
+    print(new_height, new_width, height, width)
     return img.resize((new_width, new_height), Image.LANCZOS)
 
 def save_events(events1,submitted_by="",image_id=""):
@@ -46,7 +52,7 @@ def save_events(events1,submitted_by="",image_id=""):
     except:
         print(events1)
         raise Exception("can't joad json of event(s)")
-    db_connection = psycopg2.connect(database="defaultdb", user="avnadmin", password=open("avn.txt").read(), host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
+    db_connection = psycopg2.connect(database="defaultdb", user=AVN_USER, password=AVN_PASS, host="rpi-all-events-cal-rpi-calendar.l.aivencloud.com", port=20044)
     cursor = db_connection.cursor()
     edit_pairs = []
     errors = []
@@ -75,12 +81,12 @@ def save_events(events1,submitted_by="",image_id=""):
     return (edit_pairs, errors)
 #print(save_events(events_list,submitted_by="test"))
 def process_image(img):
-    image = ImageOps.exif_transpose(Image.open(img)).convert('RGB')
+    image = resize_image(ImageOps.exif_transpose(Image.open(img)).convert('RGB'))
     buffered = BytesIO()
     image.save(buffered, format="JPEG")
     img64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
     image.save(img)
-    message = anthropic.Anthropic(api_key=open("anthropic_key.txt").read()).messages.create(
+    message = anthropic.Anthropic(api_key=ANTHROPIC_KEY).messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=3000,
         temperature=0,
