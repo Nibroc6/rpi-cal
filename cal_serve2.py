@@ -1,7 +1,6 @@
-import os, psycopg2, uuid, save_events, time, random, json, pillow_heif
+import os, psycopg2, uuid, save_events, random, json, pillow_heif
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, render_template, jsonify
 from datetime import date
-from PIL import Image
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -78,15 +77,15 @@ def check_upload_auth(key):
 #=======================Static pages============================
 
 @app.route('/about')
-def about(id):
+def about():
     return render_template("about.html")
     
-@app.route('/upload_info')
-def upload_info(id):
+@app.route('/info')
+def upload_info():
     return render_template("info.html")
     
 @app.route('/soon')
-def soon(id):
+def soon():
     return render_template("soon.html")
 
 #===============================================================
