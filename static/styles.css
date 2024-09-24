@@ -32,8 +32,16 @@ header {
 
 footer {
   background: PapayaWhip;
+  text-align: center;
 }
 
+.github {
+	text-decoration: none;
+}
+
+.github:hover {
+	text-decoration: underline;
+}
 
 /* Trick: */
 body {
