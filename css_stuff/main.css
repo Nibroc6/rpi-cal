@@ -1,0 +1,430 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend&family=Rubik&display=swap');
+
+body
+{
+    background-color: #334;
+}
+
+html
+{
+    height: 50%;
+    text-shadow: 0px 0px 4px #112;
+}
+
+.center
+{
+    text-align: center;
+}
+
+img.gameheader {
+    height: 200px;
+}
+
+.lexend
+{
+    font-family: Lexend, sans-serif;
+}
+
+.rubik
+{
+    font-family: Rubik, sans-serif;
+}
+
+.title
+{
+    line-height: 80%;
+    font-weight: bolder;
+    color: #4ddb81;
+    font-size: 36pt;
+}
+
+div.topbar
+{
+    background-color: #334;
+    margin-bottom: -40px;
+    display: block;
+}
+
+.barblue
+{
+    border: none;
+    border-top: 2px solid;
+    border-bottom: 2px solid;
+    border-color: #89F;
+    /* background-color: #1b9c9e; */
+    margin: 0px;
+}
+
+div.navlinks
+{
+    margin-top: -20px;
+    margin-bottom: -20px;
+    font-size: 16pt;
+    color: #334;
+    background-color: #2a2a3b;
+}
+
+a.navlinks
+{
+    color: #89F;
+    font-family: Lexend, sans-serif;
+}
+
+object:focus 
+{
+    outline: none;
+}
+
+.noscroll
+{
+    overflow-y: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+div.tbcont
+{
+    padding-bottom: 50px;
+    z-index: 1000;
+    position: relative;
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.gameprev-container
+{
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-left:10px; 
+    margin-right:10px; 
+    text-align: center;
+    padding:15px;
+}
+
+div.gameprev
+{
+    width: 250px;
+    height: 150px;
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: #ECEFF4;
+    border-radius:10px;
+    position: relative;
+    vertical-align: top;
+    transition-duration: 0.2;
+	transition: all 200ms cubic-bezier(0.420, 0.000, 0.580, 1.000);
+    z-index: 0;
+}
+
+div.gameprev:hover {
+    box-shadow: 0px 0px 15px 0px #112;
+    scale: 1.05;
+}
+
+.gamename
+{
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+    width: 100%;
+    color: #4ddb81;
+    font-size: 24px;
+}
+
+
+.heading
+{
+    color: #4e5eee;
+}
+
+.gamename a
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+a
+{
+    text-decoration: none;
+}
+
+.text-content
+{
+    color: #89F;
+    font-size: 15pt;
+}
+
+img.gameprev
+{
+    width: 100%;
+    height: 100%;
+    border: 2px solid #427adb;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.home-prev
+{
+    background-image: url(/img/home-preview.png);
+    opacity: 0.5;
+    width: 100%;
+    background-size: 100% 150%;
+    height: 98.5%;
+    position: absolute;
+    top:10px;
+    left: 0;
+    filter: blur(8px);
+    background-repeat: repeat-x;
+    z-index: -1;
+    background-attachment: fixed;
+}
+
+.bigboi
+{
+    font-size: 36pt;
+    justify-content: center;
+    display: flex;
+    height:100%;
+    flex-direction: column;
+    padding-top:25vh;
+}
+.bigboi div
+{
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+.bigboi .sub 
+{
+    font-size: 20pt;
+    font-style: italic;
+}
+
+.bigboi,.sub
+{
+    color: #ECEFF4;
+}
+
+.g-anim
+{
+    background: linear-gradient(-45deg, #ffb88eeb, #ffbf859c, #f1ff8fb2, #73ff7b);
+    background-size: 400% 600%;
+    animation: gradient 15s ease infinite;
+    height: 100%;
+    width:100%;
+    position: absolute;
+    z-index: -1;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+.unrel { color: #334; }
+
+.person-container
+{
+    width: 100%;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    z-index: 0;
+}
+
+.person
+{
+    padding: 10px;
+    display: flex;
+    width: 400px;
+    border: 2px solid #4ddb81;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+.person img
+{
+    border-radius: 50%;
+    width:128px;
+    height:128px;
+    margin-right: 15px;
+    border: 3px solid #557;
+    filter: drop-shadow(0px 0px 4px #112);
+}
+.person-under
+{
+    font-size: 16pt;
+    display: block;
+    color: #dee;
+}
+
+.text-desc
+{
+    color: #dee;
+    font-size: 16pt;
+}
+.person-txt
+{
+    display: flex;
+    direction: column;
+    align-items: center;
+}
+.launchbtn
+{
+    display: inline;
+    background-color:#4E5EEE;
+    padding:8px;
+    margin: 8px;
+    border-radius: 10px;
+    color: #dee;
+    border: 2px solid #aab;
+    transition-duration: 0.2;
+	transition: all 200ms cubic-bezier(0.420, 0.000, 0.580, 1.000);
+    text-align: center;
+}
+.launchbtn:hover {
+    box-shadow: 0px 0px 15px 1px #112;
+    scale: 1.1;
+}
+.launchbtn.disabled {
+    background-color:#557;
+    color: #aab;
+    border: 1px solid #aab;
+    cursor: not-allowed;
+}
+.launch-btns
+{
+    display: flex;
+    justify-content: center;
+    font-size: 14pt;
+}
+.title img {
+    display: inline;
+    height: 100px;
+    margin-top: -28px;
+    margin-bottom: -28px;
+    padding:0px;
+}
+.schoolbanner
+{
+    position: absolute;
+    right:0px;
+    top: 0px;
+    height: 40px;
+    width:80px;
+}
+
+.mobile {
+    display: none;
+}
+
+.title-blk {
+    display: inline;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    padding:4px;
+  }
+/* Track */
+::-webkit-scrollbar-track {
+    background: #1E1E2D;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a3b;
+    padding: 4px;
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #557;
+  }
+
+@media only screen and (max-width:480px) {
+    .drop-btn {
+        width: 38px;
+        height:38px;
+        color:#aab;
+        margin:30px;
+        margin-top: 20px;
+        scale: 1.5;
+        position: absolute;
+        align-items: center;
+        padding-left: 5px;
+    }
+    .drop-btn img {
+        display: block;
+        scale: 1.4;
+        filter: blur(.15px);
+        filter: drop-shadow(0px 0px 3px #112);
+        cursor: pointer;
+    }
+
+    div.navlinks {
+        display: none; /* Make Block on trigger */
+        text-align: left;
+        margin-top:-35px;
+        padding-left: 10px;
+        padding-right: 10px;
+        position: absolute;
+        border-radius: 0px 20px 20px 0px;
+        box-shadow: 0px 0px 15px 5px #112;
+        z-index: 500;
+    }
+    div.down {
+        display: block;
+    }
+    .barblue {
+        border-right: 2px solid #89F;
+    }
+    a.navlinks {
+        font-size: 30pt;
+    }
+    .mobile { display: initial;}
+    .desktop { display: none;}
+    .title-blk {
+        display: inline-block;
+    }
+    img.title-blk {
+        margin-top: -85px;
+        filter: drop-shadow(0px 0px 10px #112);
+    }
+    div.title-blk {
+        line-height: 1.1;
+        margin-top: -20px;
+    }
+    .topbar {
+        border-bottom: 4px solid #89F;
+        box-shadow: 0px 0px 50px 1px #112;
+    }
+    .title {
+        margin-bottom: -40px;
+        /* text-align: right; */
+    }
+    .launch-btns {
+        flex-direction: column;
+        margin-left: 12%;
+        margin-right: 12%;
+    }
+    .home-prev {
+        background-image: url(/img/home-prev-mobile.png);
+    }
+}
