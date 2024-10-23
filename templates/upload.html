@@ -1,15 +1,69 @@
 {% extends "layout.html" %}
 {% block body %}
 	<div class="search-box">
+	
+	<style>
+	
 
+	
+	.dropZoneContainer {
+		position: relative;
+		width: 100%;
+		height: 200px;
+	}
+	.dropZoneOverlay {
+		border: dotted 1px;
+		color: #065c22;
+		position: absolute;
+		top: 0px;
+		text-align: center;
+		display: flex;
+		justify-content: center;
+		align-items: center;		
+		
+		width: 100%;
+		height: 200px;
+	}
+		
+	.custom-file-upload {
+		opacity: 100;
+		position: absolute;
+		z-index: 1;
+		padding:15px;
+		
+		width: 100%;
+		height: 200px;
+	}
+	
+	.button {
+		background-color: #065c22;
+		border: none;
+		color: white;
+		padding: 15px 32px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 2px;
+		cursor: pointer;
+		width: 100%;
+		height: 70px;
+	}
+	</style>
+	
 	<h1>Upload Image</h1>
 	{% if error %}
 		<p class=error><strong>Error:</strong> {{ error }}
 	{% endif %}
 	
 	<form method=post enctype=multipart/form-data>
-		<input type=file name=file>
-		<input type=submit value=Upload onclick="submitting()">
+		<div class="dropZoneContainer">
+            <input type="file" id="file" name=file class="custom-file-upload" />
+            <div class="dropZoneOverlay">Drag and drop your image <br />or<br />Click to add</div>
+        </div>
+		
+		<br>
+		<button class="button" type=submit value=Upload onclick="submitting()">Upload</button>
 	</form>
 	
 	
