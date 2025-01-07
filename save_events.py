@@ -1,6 +1,7 @@
 import psycopg2, json, anthropic, base64, pillow_heif
 from io import BytesIO
 from PIL import Image, ImageOps
+from datetime import datetime
 
 import os
 from dotenv import load_dotenv
@@ -86,11 +87,12 @@ def process_image(img):
     image.save(buffered, format="JPEG")
     img64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
     image.save(img)
+    year = str(datetime.now().year)
     message = anthropic.Anthropic(api_key=ANTHROPIC_KEY).messages.create(
         model="claude-3-5-sonnet-20240620",
         max_tokens=3000,
         temperature=0,
-        system="""You are an a event poster/image processer. You respond with a JSON object of events in the following format from the given image. Respond with only the JSON object. If a given category is not applicable for the event, put N/A in it. If there is more than one event on the poster, output a JSON list of the events in the same format. For repeating events, use the date and time of a likely first event for the start time. If the event doesn't specify a year, use 2024. In an event has multiple dates, create a seperate event for each one. {"name":"name of the event","start":"date and time of event start (in the format '2024-10-10 24:59')","end":"date and time of event end (in the format '2024-10-10 24:59', if applicable)","cost":"how much does the event cost?","repeat":(int) 0 for non-repeating; 1 for weekly; 2 for bi-weekly; 3 for monthly (same day); and 4 for monthly (same day of _ week ex. second sunday of every month),"club":"what's the name of the club hosting the event?","location":"where is the event happening?","more_info":"where can more info about the event be found? Any links belong here","public":(true or false) is this a public event like a concert or intrest-gathering event?,"description":"any info that didn't go in any other category? (don't include take-down date) (do not include description of poster)"}""",
+        system="""You are an a event poster/image processor. You respond with a JSON object of events in the following format from the given image. Respond with only the JSON object. If a given category is not applicable for the event, put N/A in it. If there is more than one event on the poster, output a JSON list of the events in the same format. For repeating events, use the date and time of a likely first event for the start time. If the event doesn't specify a year, use """+year+""". In an event has multiple dates, create a separate event for each one. {"name":"name of the event","start":"date and time of event start (in the format '"""+year+"""-10-10 24:59')","end":"date and time of event end (in the format '"""+year+"""-10-10 24:59', if applicable)","cost":"how much does the event cost?","repeat":(int) 0 for non-repeating; 1 for weekly; 2 for bi-weekly; 3 for monthly (same day); and 4 for monthly (same day of _ week ex. second Sunday of every month),"club":"what's the name of the club hosting the event?","location":"where is the event happening?","more_info":"where can more info about the event be found? Any links belong here","public":(true or false) is this a public event like a concert or interest-gathering event?,"description":"any info that didn't go in any other category? (don't include take-down date) (do not include description of poster)"}""",
         messages=[
             {
                 "role": "user",
